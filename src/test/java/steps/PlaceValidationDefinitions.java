@@ -17,7 +17,10 @@ import pojo.AddPlace;
 import pojo.Location;
 import resources.TestDataBuild;
 import resources.Utils;
+import resources.enums.APIResources;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,16 +33,17 @@ public class PlaceValidationDefinitions extends Utils{
     Response response;
     TestDataBuild body = new TestDataBuild();
 
-
-    @Given("add place payload")
-    public void add_place_payload() {
+    @Given("add place payload with {string} {string} {string}")
+    public void add_place_payload_with(String name, String language, String address) throws IOException {
         responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).expectContentType(ContentType.JSON).build();
-        res = RestAssured.given().spec(requestSpecification()).body(body.addPlacePayload());
-
+        res = RestAssured.given().spec(requestSpecification())
+                .body(body.addPlacePayload(name, language, address));
     }
+
     @When("user calls {string} with Post http request")
-    public void user_calls_with_post_http_request(String string) {
-       response = res.when().post("/maps/api/place/add/json").then().spec(responseSpecification).extract().response();
+    public void user_calls_with_post_http_request(String resource) {
+      APIResources resources =  APIResources.valueOf(resource);
+       response = res.when().post(resources.getResource()).then().spec(responseSpecification).extract().response();
     }
 
     @Then("the API call is success with status code {int}")
