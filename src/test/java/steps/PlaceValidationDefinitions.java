@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.restassured.RestAssured.*;
 import static org.junit.Assert.*;
 
 public class PlaceValidationDefinitions extends Utils{
@@ -34,11 +35,12 @@ public class PlaceValidationDefinitions extends Utils{
     TestDataBuild body = new TestDataBuild();
     public static String id;
     public static JsonPath jsonPath;
+    public static String place_id;
 
     @Given("add place payload with {string} {string} {string}")
     public void add_place_payload_with(String name, String language, String address) throws IOException {
         responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).expectContentType(ContentType.JSON).build();
-        res = RestAssured.given().spec(requestSpecification())
+        res = given().spec(requestSpecification())
                 .body(body.addPlacePayload(name, language, address));
     }
 
@@ -71,7 +73,7 @@ public class PlaceValidationDefinitions extends Utils{
     @Then("verify place_id created maps to {string} using {string}")
     public void verify_place_id_created_maps_to_using(String expectName, String resource) throws IOException {
         // GET API CALL TO GET ID
-        String place_id = getJsonPath("place_id", response);
+        place_id = getJsonPath("place_id", response);
         System.out.println("ID --- " + place_id);
         res = res.given().spec(requestSpecification()).queryParam("place_id",place_id);
         user_calls_with_post_http_request( resource, "GET");
@@ -84,6 +86,7 @@ public class PlaceValidationDefinitions extends Utils{
     }
 
     @Given("deleteplace payload")
-    public void deleteplacePayload() {
+    public void deleteplacePayload() throws IOException {
+       res =  given().spec(requestSpecification()).body(body.deletePlacePayload(place_id));
     }
 }
